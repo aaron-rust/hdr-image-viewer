@@ -1,0 +1,45 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/build",
+                "${workspaceFolder}/build/**",
+                "/usr/include/qt6/**",
+                "/usr/include/qt6",
+                "/usr/include/KF6/**",
+                "/usr/include/KF6",
+                "/usr/include/c++/15.1.1/**",
+                "/usr/include/c++/15.1.1",
+                "/usr/include",
+                "${workspaceFolder}/build/src",
+                "${workspaceFolder}/src"
+            ],
+            "defines": [
+                "KCOREADDONS_LIB",
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_NETWORK_LIB",
+                "QT_NO_DEBUG",
+                "QT_OPENGL_LIB",
+                "QT_QMLINTEGRATION_LIB",
+                "QT_QMLMETA_LIB",
+                "QT_QMLMODELS_LIB",
+                "QT_QMLWORKERSCRIPT_LIB",
+                "QT_QML_LIB",
+                "QT_QUICKCONTROLS2_LIB",
+                "QT_QUICK_LIB",
+                "QT_SVG_LIB",
+                "QT_WAYLANDCLIENT_LIB",
+                "QT_WIDGETS_LIB"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
