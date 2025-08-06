@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     parser.setApplicationDescription(i18n("HDR Image Viewer with advanced color management"));
-    
+
     // Essential command line options
     QCommandLineOption helpOption({u"h"_s, u"help"_s}, i18n("Display help information"));
     parser.addOption(helpOption);

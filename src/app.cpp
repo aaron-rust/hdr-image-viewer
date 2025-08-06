@@ -92,13 +92,20 @@ void ImageNavigator::loadImageListFromDirectory(const QString &currentImagePath)
 QStringList ImageNavigator::getSupportedImageExtensions()
 {
     return {
-        QStringLiteral("*.jpg"), QStringLiteral("*.jpeg"), QStringLiteral("*.png"), 
-        QStringLiteral("*.bmp"), QStringLiteral("*.gif"), QStringLiteral("*.tiff"), 
-        QStringLiteral("*.tif"), QStringLiteral("*.webp"), QStringLiteral("*.avif"), 
-        QStringLiteral("*.heic"), QStringLiteral("*.JPG"), QStringLiteral("*.JPEG"), 
-        QStringLiteral("*.PNG"), QStringLiteral("*.BMP"), QStringLiteral("*.GIF"), 
-        QStringLiteral("*.TIFF"), QStringLiteral("*.TIF"), QStringLiteral("*.WEBP"), 
-        QStringLiteral("*.AVIF"), QStringLiteral("*.HEIC")
+        // HDR formats
+        QStringLiteral("*.avif"), QStringLiteral("*.AVIF"),
+        QStringLiteral("*.png"), QStringLiteral("*.PNG"), 
+        QStringLiteral("*.exr"), QStringLiteral("*.EXR"),
+        QStringLiteral("*.hdr"), QStringLiteral("*.HDR"),
+        QStringLiteral("*.tiff"), QStringLiteral("*.TIFF"),
+        QStringLiteral("*.tif"), QStringLiteral("*.TIF"),
+        // Standard formats (for reference)
+        QStringLiteral("*.jpg"), QStringLiteral("*.jpeg"), QStringLiteral("*.JPG"), QStringLiteral("*.JPEG"), 
+        QStringLiteral("*.bmp"), QStringLiteral("*.BMP"), 
+        QStringLiteral("*.gif"), QStringLiteral("*.GIF"), 
+        QStringLiteral("*.webp"), QStringLiteral("*.WEBP"), 
+        QStringLiteral("*.heic"), QStringLiteral("*.HEIC"),
+        QStringLiteral("*.heif"), QStringLiteral("*.HEIF"), QStringLiteral("*.hif"), QStringLiteral("*.HIF")
     };
 }
 

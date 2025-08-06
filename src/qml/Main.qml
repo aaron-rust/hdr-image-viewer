@@ -1,102 +1,95 @@
 import QtQuick
-import QtQuick.Controls as QQC2
-import org.kde.kirigami as Kirigami
 import de.aaronrust.hdrimageviewer
 
 Window {
+    
     id: mainWindow
     
     // Initial state
-    visible: false  // Show when first image loads
+    visible: false // Will be shown by ImageViewer when first image loads
     width: 1500
     height: 1000
     color: "black"
     
-    // State management
-    property bool isFirstLoad: true
-    property string lastImagePath: ""
+    // Window management properties
+    property bool wasMaximized: false
     
     // Window title with loading state
-    title: windowManager.getWindowTitle(App.currentImagePath, imageViewer.isLoading)
+    title: getWindowTitle(App.currentImagePath, imageViewer.isLoading)
     
-    // Window management
-    WindowManager {
-        id: windowManager
-        window: mainWindow
+    // Window management functions
+    function toggleFullscreen() {
+        if (visibility === Window.FullScreen) {
+            exitFullscreen()
+        } else {
+            enterFullscreen()
+        }
     }
     
-    // Keyboard shortcuts
-    KeyboardHandler {
-        id: keyboardHandler
-        
-        onToggleFullscreen: windowManager.toggleFullscreen()
-        onExitFullscreen: {
-            if (windowManager.isFullscreen()) {
-                windowManager.exitFullscreen()
+    function enterFullscreen() {
+        // Remember current state before going fullscreen
+        wasMaximized = (visibility === Window.Maximized)
+        showFullScreen()
+    }
+    
+    function exitFullscreen() {
+        if (visibility === Window.FullScreen) {
+            if (wasMaximized) {
+                showMaximized()
+                // Workaround: Second call needed for proper maximized state
+                showMaximized()
+            } else {
+                showNormal()
             }
         }
-        onQuitApplication: Qt.quit()
-        onNavigateNext: App.navigateToNext()
-        onNavigatePrevious: App.navigateToPrevious()
-        onZoomIn: imageViewer.zoomIn()
-        onZoomOut: imageViewer.zoomOut()
-        onResetZoom: imageViewer.resetZoom()
     }
     
-    // Main image viewer
-    ImageViewer {
-        id: imageViewer
-        anchors.fill: parent
-        
-        source: App.currentImagePath || imagePath
-        fallbackSource: lastImagePath
-        
-        onClicked: {
-            // Single click behavior - kept for compatibility
+    function moveWindow() {
+        // Only allow moving when not in fullscreen
+        if (visibility !== Window.FullScreen) {
+            startSystemMove()
+        }
+    }
+    
+    function isFullscreen() {
+        return visibility === Window.FullScreen
+    }
+    
+    function getWindowTitle(imagePath, isLoading) {
+        if (!imagePath) {
+            return i18n("HDR Image Viewer")
         }
         
+        let path = imagePath.toString()
+        
+        // Remove file:// prefix if present
+        if (path.startsWith("file://")) {
+            path = path.substring(7)
+        }
+        
+        const fileName = path.split('/').pop()
+        const loadingText = isLoading ? " " + i18n("(loading...)") : ""
+        
+        return fileName + loadingText + " - " + i18n("HDR Image Viewer")
+    }
+    
+    ImageViewer {
+        id: imageViewer
+        height: parent.height
+        width: parent.width
+        parentWindow: mainWindow
+        
+        source: App.currentImagePath || imagePath
+        fallbackSource: imageViewer.lastImagePath
+        
         onStartWindowMove: {
-            windowManager.moveWindow()
+            mainWindow.moveWindow()
         }
         
         onDoubleClicked: {
-            windowManager.toggleFullscreen()
+            mainWindow.toggleFullscreen()
         }
         
-        onImageReady: {
-            lastImagePath = App.currentImagePath
-            
-            // Adjust window size on first load
-            if (isFirstLoad) {
-                App.adjustWindowSizeToImage(mainWindow, App.currentImagePath || imagePath)
-                mainWindow.visible = true
-                isFirstLoad = false
-            }
-        }
-        
-        onImageError: {
-            // Show window even if first image fails
-            if (isFirstLoad) {
-                mainWindow.visible = true
-                isFirstLoad = false
-            }
-        }
-    }
-    
-    // Application initialization
-    Component.onCompleted: {
-        // Setup HDR color management
-        App.setupMainWindow(mainWindow)
-        App.enablePQMode(mainWindow, 203)
-        
-        // Initialize image navigation
-        App.initializeImageList(imagePath)
-    }
-    
-    // Handle window state changes for proper cleanup
-    onVisibilityChanged: {
-        // Ensure keyboard focus is maintained
-        keyboardHandler.forceActiveFocus()
-    }
-}
+    }   
 
+}

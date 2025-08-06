@@ -9,10 +9,8 @@ HDR Image Viewer is an application for viewing HDR images with accurate color re
 ## Features
 
 - Display of HDR images via the Wayland color-management-v1 protocol
-- 100x zoom with cursor-centered scaling
-- Persistent zoom/pan state for image comparison
-- Fullscreen mode (F11 or double-click)
-- Keyboard navigation
+- 100x zoom with cursor-centered scaling, WASD movement and persistent zoom/pan state for seamless image comparison
+- High performance with animations developed for maximum smoothness on high refresh rate displays up to 240 Hertz
 - PNG and AVIF format support
 - Large file handling (up to 1 GiB)
 
@@ -23,6 +21,7 @@ HDR Image Viewer is an application for viewing HDR images with accurate color re
 - HDR display
 
 ### Supported Formats
+
 - HDR PNG (.png) with BT.2020 PQ (ST.2084)
 - HDR AVIF (.avif) with BT.2020 PQ (ST.2084)
 
@@ -53,20 +52,38 @@ HDR Image Viewer is an application for viewing HDR images with accurate color re
 
 ## Usage
 
+Launch the application with an image file:
+
 ```bash
-./hdr-image-viewer path/to/image.png
-./hdr-image-viewer path/to/image.avif
+./build/bin/hdr-image-viewer path/to/image.png
+./build/bin/hdr-image-viewer path/to/image.avif
 ```
 
 ### Controls
-- **Right Arrow**, **D**, **Page Down**, or **Space**: Navigate to next image
-- **Left Arrow**, **A**, **Page Up**, or **Backspace**: Navigate to previous image
-- **Mouse wheel**: Zoom in/out
-- **Click + drag**: Pan (when zoomed) or move window
-- **F** or **F11**: Toggle fullscreen
-- **+/-**: Zoom in/out
-- **0**: Reset zoom
-- **Q**: Quit
+
+#### Navigation
+- **Space**, **Right Arrow** or **Page Down**: Navigate to next image
+- **Shift**, **Left Arrow** or **Page Up**: Navigate to previous image
+
+#### Zoom & View
+- **Mouse wheel**: Zoom in/out at cursor position
+- **E**, **+**, or **=**: Zoom in (continuous when held)
+- **Q**, **-** or **_**: Zoom out (continuous when held)
+- **0** or **Home**: Reset zoom to fit window
+
+#### Image Movement (when zoomed in)
+- **W**: Move image up (continuous when held)
+- **A**: Move image left (continuous when held)  
+- **S**: Move image down (continuous when held)
+- **D**: Move image right (continuous when held)
+- **Click + drag**: Move image with mouse
+
+#### Window Control
+- **F** or **F11**: Toggle fullscreen mode
+- **Escape**: Exit fullscreen mode
+- **Ctrl+Q**: Quit application
+- **Double-click**: Toggle fullscreen mode
+- **Click + drag** (when not zoomed): Move window
 
 ## License
 

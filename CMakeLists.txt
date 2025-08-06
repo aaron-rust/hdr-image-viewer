@@ -44,6 +44,9 @@ find_package(KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
 
+# Generate .qmlls.ini for QML Language Server support
+set(QT_QML_GENERATE_QMLLS_INI ON)
+
 # Target: static library
 qt_add_qml_module(hdr_image_viewer_static
     STATIC
@@ -53,8 +56,6 @@ qt_add_qml_module(hdr_image_viewer_static
     QML_FILES
         src/qml/Main.qml
         src/qml/ImageViewer.qml
-        src/qml/KeyboardHandler.qml
-        src/qml/WindowManager.qml
 )
 
 qt6_generate_wayland_protocol_client_sources(hdr_image_viewer_static
