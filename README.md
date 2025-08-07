@@ -14,16 +14,33 @@ HDR Image Viewer is an application for viewing HDR images with accurate color re
 - PNG and AVIF format support
 - Large file handling (up to 1 GiB)
 
-## Requirements
+## Requirements and compatibility
+
+### Runtime environment
 
 - Linux system
-- Wayland compositor with HDR support (f.e. KDE Plasma)
-- HDR display
+- KDE Plasma / KWin in Wayland mode and activated HDR
+- HDR capable display. A display with a maximum brightness of 1000 Nits with a HDR1000 certification is recommended.
 
-### Supported Formats
+### Supported image file formats
 
 - HDR PNG (.png) with BT.2020 PQ (ST.2084)
 - HDR AVIF (.avif) with BT.2020 PQ (ST.2084)
+
+### Wayland support and color management
+
+This image viewer relies on the correct implementation of the [color-management-v1](https://wayland.app/protocols/color-management-v1) protocol in your Wayland compositor.
+
+As of 2025-08-08, KDE Plasma (KWin) is the only known Wayland compositor that correctly implements all protocol features required by this application.
+
+The other tested Wayland compositors GNOME (Mutter), Sway and Hyprland support HDR in general, but currently lack full support for certain parts of the protocol. As a result, this application will not start under these environments and may show an error message like "[destroyed object]: error 0: Mastering luminances are not supported".
+
+If you are a developer of one of the compositors mentioned above and would like to make this application compatible with your environment, please ensure that tone mapping functionality is implemented, including the following functions of the [color-management-v1](https://wayland.app/protocols/color-management-v1) protocol:
+
+- [wp_image_description_creator_params_v1_set_primaries_named](https://wayland.app/protocols/color-management-v1#wp_image_description_creator_params_v1:request:set_primaries_named)
+- [wp_image_description_creator_params_v1_set_tf_named](https://wayland.app/protocols/color-management-v1#wp_image_description_creator_params_v1:request:set_tf_named)
+- [wp_image_description_creator_params_v1_set_luminances](https://wayland.app/protocols/color-management-v1#wp_image_description_creator_params_v1:request:set_luminances)
+- [wp_image_description_creator_params_v1_set_mastering_luminance](https://wayland.app/protocols/color-management-v1#wp_image_description_creator_params_v1:request:set_mastering_luminance)
 
 ## Installation
 
