@@ -12,7 +12,8 @@ HDR Image Viewer is an application for viewing HDR images with accurate color re
 - 100x zoom with cursor-centered scaling, WASD movement and persistent zoom/pan state for seamless image comparison
 - High performance with animations developed for maximum smoothness on high refresh rate displays up to 240 Hertz
 - PNG and AVIF format support
-- Large file handling (up to 1 GiB)
+- Large file handling (up to 8 GiB)
+- Large resolution handling (tested up to 16512 x 11008 pixels / 181.8 MP)
 
 ## Requirements and compatibility
 
