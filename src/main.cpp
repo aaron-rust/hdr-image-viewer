@@ -41,8 +41,8 @@ namespace {
     }
     
     void setupApplication() {
-        // Optimize for large HDR images (1GB allocation limit)
-        qputenv("QT_IMAGEIO_MAXALLOC", "1024");
+        // Optimize for large HDR images (8GB allocation limit)
+        qputenv("QT_IMAGEIO_MAXALLOC", "8192");
 
         // Use KDE desktop style unless overridden
         if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
