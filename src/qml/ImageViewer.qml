@@ -10,6 +10,7 @@ Item {
     property alias status: mainImage.status
     property bool isLoading: mainImage.status === Image.Loading
     property string fallbackSource: ""
+    property bool isHDRMode: currentHDRMode  // Expose current HDR mode state
 
     // State management
     property bool isFirstLoad: true
@@ -70,6 +71,22 @@ Item {
     property bool dPressed: false
     property bool qPressed: false
     property bool ePressed: false
+    
+    // HDR mode toggle - track current state
+    property bool currentHDRMode: false
+    
+    function toggleHDRMode() {
+        // Simply invert the current state
+        if (currentHDRMode) {
+            App.disablePQMode(hdrWindow)
+            currentHDRMode = false
+            print("HDR mode manually disabled")
+        } else {
+            App.enablePQMode(hdrWindow)
+            currentHDRMode = true
+            print("HDR mode manually enabled")
+        }
+    }
 
     // Zoom functionality
     property real zoomFactor: 1.0
@@ -301,6 +318,7 @@ Item {
                             }
                             
                             onSourceChanged: {
+                                print("onSourceChanged called - new source:", source)
                                 // Update fallback when starting to load a new image
                                 if (root.lastImagePath && root.lastImagePath !== source) {
                                     root.fallbackSource = root.lastImagePath
@@ -310,6 +328,19 @@ Item {
                             onStatusChanged: {
                                 if (status === Image.Ready) {
                                     root.lastImagePath = root.source
+                                    
+                                    print("Image loaded:", root.source)
+
+                                    // Detect if image is HDR or SDR and adjust color mode automatically
+                                    if (App.isImageHDR(root.source)) {
+                                        print("Detected as HDR - enabling PQ mode")
+                                        App.enablePQMode(hdrWindow)
+                                        currentHDRMode = true
+                                    } else {
+                                        print("Detected as SDR - disabling PQ mode")
+                                        App.disablePQMode(hdrWindow)
+                                        currentHDRMode = false
+                                    }
                                     
                                     // Handle first load
                                     if (root.isFirstLoad) {
@@ -497,6 +528,11 @@ Item {
                 event.accepted = true
                 break
                 
+            case Qt.Key_H:
+                root.toggleHDRMode()
+                event.accepted = true
+                break
+                
             default:
                 event.accepted = false
             }
@@ -549,9 +585,6 @@ Item {
     }
 
     Component.onCompleted: {
-        // Setup HDR color management (includes PQ mode with 203 nits)
-        App.enablePQMode(hdrWindow, 203)
-        
         // Initialize image navigation if source is provided
         if (root.source) {
             App.initializeImageList(root.source)

@@ -288,10 +288,52 @@ void App::enablePQMode(QQuickWindow *window, int referenceLuminance)
     m_colorController->setPQMode(window, referenceLuminance);
 }
 
+void App::disablePQMode(QQuickWindow *window)
+{
+    // Set to sRGB mode for SDR images
+    m_colorController->setColorMode(window, ColorManagementSurface::ColorMode::Default);
+}
+
 void App::setColorProfile(QQuickWindow *window, int profileId)
 {
     auto mode = static_cast<ColorManagementSurface::ColorMode>(profileId);
     m_colorController->setColorMode(window, mode);
+}
+
+// TODO: Add correct detection logic for SDR and HDR versions of PNG, AVIF, HEIF, HEIC, TIFF and JPEG. Currently only works for PNG.
+bool App::isImageHDR(const QString &imagePath)
+{
+    // Convert URL to local file path if needed
+    QString localPath = imagePath;
+    if (localPath.startsWith(QStringLiteral("file://"))) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+
+    QFileInfo fileInfo(localPath);
+    QString extension = fileInfo.suffix().toLower();
+    
+    if (extension == QStringLiteral("png")) {
+        
+        QImageReader reader(localPath);
+        if (!reader.canRead()) {
+            return false;
+        }
+
+        // If PNG is 16-bit per channel, detect it as HDR
+        QImage::Format format = reader.imageFormat();
+        if (format == QImage::Format_RGBX64 || 
+            format == QImage::Format_RGBA64 ||
+            format == QImage::Format_RGBA64_Premultiplied ||
+            format == QImage::Format_Grayscale16) {
+            return true;
+        }
+        
+        // If PNG is 8-bit per channel, detect it as SDR
+        return false;
+    }
+    
+    // All other formats are currently always interpreted as SDR
+    return false;
 }
 
 void App::initializeImageList(const QString &imagePath)

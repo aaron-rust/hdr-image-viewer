@@ -91,7 +91,9 @@ public:
     
     // Color management
     Q_INVOKABLE void enablePQMode(QQuickWindow *window, int referenceLuminance = 203);
+    Q_INVOKABLE void disablePQMode(QQuickWindow *window);
     Q_INVOKABLE void setColorProfile(QQuickWindow *window, int profileId);
+    Q_INVOKABLE bool isImageHDR(const QString &imagePath);
     
     // Image navigation
     Q_INVOKABLE void initializeImageList(const QString &imagePath);

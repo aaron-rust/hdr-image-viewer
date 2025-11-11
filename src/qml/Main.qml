@@ -15,7 +15,7 @@ Window {
     property bool wasMaximized: false
     
     // Window title with loading state
-    title: getWindowTitle(App.currentImagePath, imageViewer.isLoading)
+    title: getWindowTitle(App.currentImagePath, imageViewer.isLoading, imageViewer.isHDRMode)
     
     // Window management functions
     function toggleFullscreen() {
@@ -55,7 +55,7 @@ Window {
         return visibility === Window.FullScreen
     }
     
-    function getWindowTitle(imagePath, isLoading) {
+    function getWindowTitle(imagePath, isLoading, isHDR) {
         if (!imagePath) {
             return i18n("HDR Image Viewer")
         }
@@ -69,8 +69,9 @@ Window {
         
         const fileName = path.split('/').pop()
         const loadingText = isLoading ? " " + i18n("(loading...)") : ""
+        const modeText = isHDR ? "HDR" : "SDR"
         
-        return fileName + loadingText + " - " + i18n("HDR Image Viewer")
+        return fileName + loadingText + " – " + "color mode: " + modeText + " – " + i18n("HDR Image Viewer")
     }
     
     ImageViewer {
