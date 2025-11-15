@@ -65,6 +65,7 @@ qt6_generate_wayland_protocol_client_sources(hdr_image_viewer_static
 target_sources(hdr_image_viewer_static PUBLIC
     src/app.cpp
     src/color_management.cpp
+    src/file_detector.cpp
 )
 
 target_link_libraries(hdr_image_viewer_static PUBLIC

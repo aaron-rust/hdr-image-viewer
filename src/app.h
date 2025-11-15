@@ -32,7 +32,6 @@ Q_SIGNALS:
 
 private:
     void loadImageListFromDirectory(const QString &currentImagePath);
-    static QStringList getSupportedImageExtensions();
 
     QStringList m_imageList;
     QString m_currentImagePath;

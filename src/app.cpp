@@ -1,4 +1,5 @@
 #include "app.h"
+#include "file_detector.h"
 
 #include <QDir>
 #include <QEvent>
@@ -62,16 +63,19 @@ void ImageNavigator::loadImageListFromDirectory(const QString &currentImagePath)
     }
 
     QDir directory = currentFile.dir();
-    QStringList imageFilters = getSupportedImageExtensions();
 
-    // Get all image files sorted by name
-    QStringList imageFiles = directory.entryList(imageFilters, QDir::Files, QDir::Name);
+    // Get all files sorted by name
+    QStringList allFiles = directory.entryList(QDir::Files, QDir::Name);
 
-    // Create full paths
+    // Filter by file extension (fast check for navigation queue)
     m_imageList.clear();
-    for (const QString &fileName : imageFiles) {
+    for (const QString &fileName : allFiles) {
         QString fullPath = directory.absoluteFilePath(fileName);
-        m_imageList.append(QUrl::fromLocalFile(fullPath).toString());
+        
+        // Use extension-based check for building the navigation list (performance)
+        if (FileDetector::hasImageExtension(fullPath)) {
+            m_imageList.append(QUrl::fromLocalFile(fullPath).toString());
+        }
     }
 
     // Find current file index
@@ -87,26 +91,6 @@ void ImageNavigator::loadImageListFromDirectory(const QString &currentImagePath)
     }
 
     Q_EMIT currentImageChanged(m_currentImagePath);
-}
-
-QStringList ImageNavigator::getSupportedImageExtensions()
-{
-    return {
-        // HDR formats
-        QStringLiteral("*.avif"), QStringLiteral("*.AVIF"),
-        QStringLiteral("*.png"), QStringLiteral("*.PNG"), 
-        QStringLiteral("*.exr"), QStringLiteral("*.EXR"),
-        QStringLiteral("*.hdr"), QStringLiteral("*.HDR"),
-        QStringLiteral("*.tiff"), QStringLiteral("*.TIFF"),
-        QStringLiteral("*.tif"), QStringLiteral("*.TIF"),
-        // Standard formats (for reference)
-        QStringLiteral("*.jpg"), QStringLiteral("*.jpeg"), QStringLiteral("*.JPG"), QStringLiteral("*.JPEG"), 
-        QStringLiteral("*.bmp"), QStringLiteral("*.BMP"), 
-        QStringLiteral("*.gif"), QStringLiteral("*.GIF"), 
-        QStringLiteral("*.webp"), QStringLiteral("*.WEBP"), 
-        QStringLiteral("*.heic"), QStringLiteral("*.HEIC"),
-        QStringLiteral("*.heif"), QStringLiteral("*.HEIF"), QStringLiteral("*.hif"), QStringLiteral("*.HIF")
-    };
 }
 
 ColorController::ColorController(QObject *parent)
@@ -300,40 +284,9 @@ void App::setColorProfile(QQuickWindow *window, int profileId)
     m_colorController->setColorMode(window, mode);
 }
 
-// TODO: Add correct detection logic for SDR and HDR versions of PNG, AVIF, HEIF, HEIC, TIFF and JPEG. Currently only works for PNG.
 bool App::isImageHDR(const QString &imagePath)
 {
-    // Convert URL to local file path if needed
-    QString localPath = imagePath;
-    if (localPath.startsWith(QStringLiteral("file://"))) {
-        localPath = QUrl(localPath).toLocalFile();
-    }
-
-    QFileInfo fileInfo(localPath);
-    QString extension = fileInfo.suffix().toLower();
-    
-    if (extension == QStringLiteral("png")) {
-        
-        QImageReader reader(localPath);
-        if (!reader.canRead()) {
-            return false;
-        }
-
-        // If PNG is 16-bit per channel, detect it as HDR
-        QImage::Format format = reader.imageFormat();
-        if (format == QImage::Format_RGBX64 || 
-            format == QImage::Format_RGBA64 ||
-            format == QImage::Format_RGBA64_Premultiplied ||
-            format == QImage::Format_Grayscale16) {
-            return true;
-        }
-        
-        // If PNG is 8-bit per channel, detect it as SDR
-        return false;
-    }
-    
-    // All other formats are currently always interpreted as SDR
-    return false;
+    return FileDetector::isImageHDR(imagePath);
 }
 
 void App::initializeImageList(const QString &imagePath)
