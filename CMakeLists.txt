@@ -41,6 +41,10 @@ find_package(Qt6 ${QT6_MIN_VERSION} REQUIRED COMPONENTS Core Gui Qml QuickContro
 find_package(Qt6GuiPrivate ${QT6_MIN_VERSION} REQUIRED NO_MODULE)
 find_package(KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n)
 
+# Find libjxl for JPEG-XL HDR detection
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBJXL REQUIRED IMPORTED_TARGET libjxl)
+
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
 
@@ -79,6 +83,7 @@ target_link_libraries(hdr_image_viewer_static PUBLIC
     KF6::I18n
     KF6::CoreAddons
     Qt6::WaylandClient
+    PkgConfig::LIBJXL
 )
 
 # Only link Qt::GuiPrivate if available
