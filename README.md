@@ -4,14 +4,14 @@ An image viewer for displaying High Dynamic Range (HDR) images on Linux systems.
 
 ## Description
 
-HDR Image Viewer is an application for viewing HDR images with accurate color reproduction on Linux. It supports PNG and AVIF images in BT.2020 PQ/ST.2084 color encoding and integrates with the Wayland color-management-v1 protocol for proper HDR display. It has been developed and tested under KDE Plasma 6 in Wayland mode with HDR enabled on a HDR1000 certified display.
+HDR Image Viewer is an application for viewing HDR images with accurate color reproduction on Linux. It supports multiple image formats in the HDR color encoding BT.2020 PQ/ST.2084 as well as SDR and integrates with the Wayland color-management-v1 protocol for proper HDR display. It has been developed and tested under KDE Plasma 6 in Wayland mode with HDR enabled on a HDR1000 certified display.
 
 ## Features
 
 - Display of HDR images via the Wayland color-management-v1 protocol
 - 100x zoom with cursor-centered scaling, WASD movement and persistent zoom/pan state for seamless image comparison
 - High performance with animations developed for maximum smoothness on high refresh rate displays up to 240 Hertz
-- PNG and AVIF format support
+- Support for PNG, AVIF, HEIC, JPEG-XL, JPEG (SDR only) and TIFF files
 - Large file handling (up to 8 GiB)
 - Large resolution handling (tested up to 16512 x 11008 pixels / 181.8 MP)
 
@@ -25,8 +25,14 @@ HDR Image Viewer is an application for viewing HDR images with accurate color re
 
 ### Supported image file formats
 
-- HDR PNG (.png) with BT.2020 PQ (ST.2084)
-- HDR AVIF (.avif) with BT.2020 PQ (ST.2084)
+The only HDR format that is currently supported is BT.2020 PQ (ST.2084). HLG is not supported as this time.
+
+- HDR and SDR PNG (.png)
+- HDR and SDR AVIF (.avif)
+- HDR and SDR HEIC (.heic)
+- HDR and SDR JPEG-XL (.jxl)
+- SDR JPEG (.jpg)
+- HDR and SDR TIFF (.tiff)
 
 ### Wayland support and color management
 
