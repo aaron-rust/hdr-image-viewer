@@ -5,28 +5,10 @@
 #include <QUrl>
 #include <QFileInfo>
 
-bool FileDetector::hasImageExtension(const QString &filePath)
-{
-    QFileInfo fileInfo(filePath);
-    QString ext = fileInfo.suffix().toLower();
-    
-    // List of supported image extensions (for fast directory filtering)
-    static const QSet<QString> imageExtensions = {
-        QStringLiteral("png"),
-        QStringLiteral("jpg"), QStringLiteral("jpeg"),
-        QStringLiteral("avif"),
-        QStringLiteral("heic"), QStringLiteral("heif"), QStringLiteral("hif"),
-        QStringLiteral("jxl"),
-        QStringLiteral("tiff"), QStringLiteral("tif")
-    };
-    
-    return imageExtensions.contains(ext);
-}
-
 bool FileDetector::isSupportedImageFormat(const QString &filePath)
 {
-    // For navigation: just check file extension (fast)
-    return hasImageExtension(filePath);
+    ImageFormat format = detectImageFormat(filePath);
+    return format != ImageFormat::Unknown;
 }
 
 bool FileDetector::isImageHDR(const QString &imagePath)

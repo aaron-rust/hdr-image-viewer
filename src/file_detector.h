@@ -17,7 +17,6 @@ public:
 
     static bool isImageHDR(const QString &imagePath);
     static bool isSupportedImageFormat(const QString &filePath);
-    static bool hasImageExtension(const QString &filePath);
     static ImageFormat detectImageFormat(const QString &filePath);
 
 private:

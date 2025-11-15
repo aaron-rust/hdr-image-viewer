@@ -67,13 +67,11 @@ void ImageNavigator::loadImageListFromDirectory(const QString &currentImagePath)
     // Get all files sorted by name
     QStringList allFiles = directory.entryList(QDir::Files, QDir::Name);
 
-    // Filter by file extension (fast check for navigation queue)
     m_imageList.clear();
     for (const QString &fileName : allFiles) {
         QString fullPath = directory.absoluteFilePath(fileName);
         
-        // Use extension-based check for building the navigation list (performance)
-        if (FileDetector::hasImageExtension(fullPath)) {
+        if (FileDetector::isSupportedImageFormat(fullPath)) {
             m_imageList.append(QUrl::fromLocalFile(fullPath).toString());
         }
     }

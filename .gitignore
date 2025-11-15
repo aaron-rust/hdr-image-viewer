@@ -1,4 +1,5 @@
 build
 .qmlls.ini
 test-images
+test-images-many
 releases

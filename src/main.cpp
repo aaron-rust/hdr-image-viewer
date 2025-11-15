@@ -12,6 +12,7 @@
 #include <QUrl>
 
 #include "app.h"
+#include "file_detector.h"
 #include "version-hdr-image-viewer.h"
 #include <KAboutData>
 #include <KLocalizedContext>
@@ -23,7 +24,8 @@ namespace {
     constexpr int SUCCESS = 0;
     constexpr int INVALID_ARGS = 1;
     constexpr int FILE_NOT_FOUND = 2;
-    constexpr int ENGINE_FAILED = 3;
+    constexpr int UNSUPPORTED_FORMAT = 3;
+    constexpr int ENGINE_FAILED = 4;
     
     QString processImagePath(const QString &filePath) {
         QFileInfo fileInfo(filePath);
@@ -106,6 +108,13 @@ int main(int argc, char *argv[])
     QString imagePath = processImagePath(args.first());
     if (imagePath.isEmpty()) {
         return FILE_NOT_FOUND;
+    }
+    
+    // Check if the image format is supported
+    QString localPath = QUrl(imagePath).toLocalFile();
+    if (!FileDetector::isSupportedImageFormat(localPath)) {
+        qCritical() << "Error: Unsupported image format:" << localPath;
+        return UNSUPPORTED_FORMAT;
     }
 
     // Setup QML engine
