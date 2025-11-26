@@ -437,21 +437,14 @@ Item {
         }
     }
 
-    // Keyboard handler Item (invisible, just for key handling)
+    // Keyboard Handler Item
     Item {
         id: keyHandler
         anchors.fill: parent
         focus: true
         
         Keys.onPressed: (event) => {
-            // Ignore auto-repeat events for movement and zoom keys
-            if (event.isAutoRepeat && (event.key === Qt.Key_W || event.key === Qt.Key_A || 
-                                      event.key === Qt.Key_S || event.key === Qt.Key_D ||
-                                      event.key === Qt.Key_Q || event.key === Qt.Key_E)) {
-                event.accepted = true
-                return
-            }
-            
+
             switch (event.key) {
             case Qt.Key_Q:
                 if (event.modifiers & Qt.ControlModifier) {
@@ -488,17 +481,16 @@ Item {
                 App.navigateToPrevious()
                 event.accepted = true
                 break
-                
-            case Qt.Key_E:
-            case Qt.Key_Plus:
-            case Qt.Key_Equal:
-                root.ePressed = true
+
+            case Qt.Key_Q:
+            case Qt.Key_Minus:
+                root.qPressed = true
                 event.accepted = true
                 break
                 
-            case Qt.Key_Minus:
-            case Qt.Key_Underscore:
-                root.zoomOutKeyboard()
+            case Qt.Key_E:
+            case Qt.Key_Plus:
+                root.ePressed = true
                 event.accepted = true
                 break
                 
@@ -539,21 +531,16 @@ Item {
         }
         
         Keys.onReleased: (event) => {
-            // Ignore auto-repeat events for movement and zoom keys
-            if (event.isAutoRepeat && (event.key === Qt.Key_W || event.key === Qt.Key_A || 
-                                      event.key === Qt.Key_S || event.key === Qt.Key_D ||
-                                      event.key === Qt.Key_Q || event.key === Qt.Key_E)) {
-                event.accepted = true
-                return
-            }
             
             switch (event.key) {
             case Qt.Key_Q:
+            case Qt.Key_Minus:
                 root.qPressed = false
                 event.accepted = true
                 break
                 
             case Qt.Key_E:
+            case Qt.Key_Plus:
                 root.ePressed = false
                 event.accepted = true
                 break

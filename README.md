@@ -91,8 +91,8 @@ Launch the application with an image file:
 
 #### Zoom & View
 - **Mouse wheel**: Zoom in/out at cursor position
-- **E**, **+**, or **=**: Zoom in (continuous when held)
-- **Q**, **-** or **_**: Zoom out (continuous when held)
+- **E**, **+**: Zoom in (continuous when held)
+- **Q**, **-**: Zoom out (continuous when held)
 - **0** or **Home**: Reset zoom to fit window
 
 #### Color management
