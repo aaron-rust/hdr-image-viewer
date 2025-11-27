@@ -70,6 +70,7 @@ target_sources(hdr_image_viewer_static PUBLIC
     src/app.cpp
     src/color_management.cpp
     src/file_detector.cpp
+    resources/app.qrc
 )
 
 target_link_libraries(hdr_image_viewer_static PUBLIC

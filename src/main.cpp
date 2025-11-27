@@ -69,7 +69,7 @@ namespace {
             i18nc("@info:credit", "Maintainer & Developer"));
             
         KAboutData::setApplicationData(aboutData);
-        QGuiApplication::setWindowIcon(QIcon::fromTheme(u"de.aaronrust.hdr-image-viewer"_s));
+        QGuiApplication::setWindowIcon(QIcon(u":/icons/app-icon.svg"_s));
     }
 }
 
