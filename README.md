@@ -95,8 +95,9 @@ Launch the application with an image file:
 - **Q**, **-**: Zoom out (continuous when held)
 - **0** or **Home**: Reset zoom to fit window
 
-#### Color management
+#### Image Rendering
 - **H**: Manually toggle between HDR and SDR interpretation
+- **P**: Toggle pixel art mode (disables pixel smoothing)
 
 #### Image Movement (when zoomed in)
 - **W**: Move image up (continuous when held)

@@ -75,6 +75,9 @@ Item {
     // HDR mode toggle - track current state
     property bool currentHDRMode: false
     
+    // Smooth rendering toggle for pixel art mode
+    property bool smoothRendering: true
+    
     function toggleHDRMode() {
         // Simply invert the current state
         if (currentHDRMode) {
@@ -284,10 +287,10 @@ Item {
                             fillMode: Image.PreserveAspectFit
                             source: root.fallbackSource
                             visible: root.isLoading && root.fallbackSource !== ""
-                            smooth: true
+                            smooth: root.smoothRendering
                             mipmap: true
                             cache: true
-                            asynchronous: false
+                            asynchronous: true
                             
                             transform: Scale {
                                 xScale: root.zoomFactor
@@ -304,7 +307,7 @@ Item {
                             width: imageFlickable.width
                             height: imageFlickable.height
                             fillMode: Image.PreserveAspectFit
-                            smooth: true
+                            smooth: root.smoothRendering
                             mipmap: true
                             cache: true
                             asynchronous: true
@@ -521,6 +524,11 @@ Item {
                 
             case Qt.Key_H:
                 root.toggleHDRMode()
+                event.accepted = true
+                break
+                
+            case Qt.Key_P:
+                root.smoothRendering = !root.smoothRendering
                 event.accepted = true
                 break
                 
