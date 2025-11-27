@@ -154,10 +154,9 @@ Item {
         
         zoomFactor = newZoom
         
-        if (zoomFactor <= minZoom) {
-            // Reset to center when at minimum zoom
-            imageFlickable.contentX = 0
-            imageFlickable.contentY = 0
+        if (zoomFactor <= minZoom + 0.001) {
+            // At or very close to minimum zoom - fully reset
+            resetZoom()
         } else {
             // Zoom towards the specified point
             const ratioChange = newZoom / oldZoom
