@@ -57,14 +57,12 @@ If you are a developer of one of the compositors mentioned above and would like 
    
    1.1 **Ubuntu/Debian:**
    ```bash
-   sudo apt install qt6-base-dev qt6-declarative-dev qt6-wayland-dev \
-                    libkf6kirigami2-dev libkf6coreaddons-dev libkf6config-dev \
-                    libkf6i18n-dev extra-cmake-modules cmake build-essential
+   sudo apt install qt6-base-dev qt6-declarative-dev qt6-wayland-dev libkf6kirigami2-dev libkf6coreaddons-dev libkf6config-dev libkf6i18n-dev extra-cmake-modules cmake build-essential unixodbc qt6-base-doc
    ```
 
    1.2 **Arch Linux:**
    ```bash
-   sudo pacman -S cmake base-devel qt6-base qt6-declarative qt6-wayland kirigami extra-cmake-modules kconfig kcoreaddons ki18n ccache
+   sudo pacman -S cmake base-devel qt6-base qt6-declarative qt6-wayland kirigami extra-cmake-modules kconfig kcoreaddons ki18n ccache unixodbc qt6-doc
    ```
 
 2. **Clone and build:**
