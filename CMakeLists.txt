@@ -8,13 +8,13 @@ set(QT6_MIN_VERSION 6.8.0)
 set(KF6_MIN_VERSION 6.8.0)
 
 find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
-find_package(Qt6WaylandClient REQUIRED)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(ECMSetupVersion)
+
+find_package(Qt6WaylandClient REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
