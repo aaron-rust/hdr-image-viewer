@@ -9,7 +9,6 @@ Item {
     property alias source: mainImage.source
     property alias status: mainImage.status
     property bool isLoading: mainImage.status === Image.Loading
-    property string fallbackSource: ""
     property bool isHDRMode: currentHDRMode  // Expose current HDR mode state
 
     // State management
@@ -278,29 +277,6 @@ Item {
                         width: Math.max(mainImage.paintedWidth * root.zoomFactor, imageFlickable.width)
                         height: Math.max(mainImage.paintedHeight * root.zoomFactor, imageFlickable.height)
                         
-                        // Fallback image (shown during loading)
-                        Image {
-                            id: fallbackImage
-                            anchors.centerIn: parent
-                            width: imageFlickable.width
-                            height: imageFlickable.height
-                            fillMode: Image.PreserveAspectFit
-                            source: root.fallbackSource
-                            visible: root.isLoading && root.fallbackSource !== ""
-                            smooth: root.smoothRendering
-                            mipmap: true
-                            cache: true
-                            asynchronous: true
-                            
-                            transform: Scale {
-                                xScale: root.zoomFactor
-                                yScale: root.zoomFactor
-                                origin.x: fallbackImage.width / 2
-                                origin.y: fallbackImage.height / 2
-                            }
-                        }
-                        
-                        // Main image
                         Image {
                             id: mainImage
                             anchors.centerIn: parent
@@ -308,23 +284,17 @@ Item {
                             height: imageFlickable.height
                             fillMode: Image.PreserveAspectFit
                             smooth: root.smoothRendering
-                            mipmap: true
-                            cache: true
+                            mipmap: false
+                            cache: false
                             asynchronous: true
+                            autoTransform: true
+                            retainWhileLoading: true
                             
                             transform: Scale {
                                 xScale: root.zoomFactor
                                 yScale: root.zoomFactor
                                 origin.x: mainImage.width / 2
                                 origin.y: mainImage.height / 2
-                            }
-                            
-                            onSourceChanged: {
-                                print("onSourceChanged called - new source:", source)
-                                // Update fallback when starting to load a new image
-                                if (root.lastImagePath && root.lastImagePath !== source) {
-                                    root.fallbackSource = root.lastImagePath
-                                }
                             }
                             
                             onStatusChanged: {

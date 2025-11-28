@@ -81,7 +81,6 @@ Window {
         parentWindow: mainWindow
         
         source: App.currentImagePath || imagePath
-        fallbackSource: imageViewer.lastImagePath
         
         onStartWindowMove: {
             mainWindow.moveWindow()
