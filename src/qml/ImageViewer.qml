@@ -6,14 +6,96 @@ Item {
     id: root
     
     // Public properties
-    property alias source: mainImage.source
-    property alias status: mainImage.status
-    property bool isLoading: mainImage.status === Image.Loading
+    // Externally set image source
+    property url source: ""
+    // Status / loading flags of the currently visible image
+    property int status: currentImage.status
+    property bool isLoading: currentImage.status === Image.Loading
     property bool isHDRMode: currentHDRMode  // Expose current HDR mode state
 
     // State management
     property bool isFirstLoad: true
     property string lastImagePath: ""
+    property bool useImageA: true
+    property Image currentImage: useImageA ? mainImageA : mainImageB
+    property bool imageAChangePending: false
+    property bool imageBChangePending: false
+
+    // React to changed external source and start loading
+    onSourceChanged: {
+        print("Source changed to:", source)
+        if (!source) return
+        loadNewImage(source)
+    }
+
+    // Double image logic: load new image into hidden image and then swap visibility
+    function loadNewImage(newSource) {
+        // Loader is the currently NOT visible image
+        const loader = useImageA ? mainImageB : mainImageA
+
+        if(loader == mainImageA) {
+            print("Loading new image into Image A:", newSource)
+            imageAChangePending = true;
+            imageBChangePending = false;
+        } else {
+            print("Loading new image into Image B:", newSource)
+            imageBChangePending = true;
+            imageAChangePending = false;
+        }
+
+        // Abort previous loading
+        loader.source = ""
+
+        // Load new image (hidden)
+        loader.source = newSource
+    }
+
+    // Shared status handling for both image instances
+    function handleImageStatusChanged(imageItem) {
+
+        if (imageItem.status === Image.Ready) {
+            // Only react if this is the hidden loader image
+            const loaderIsA = (imageItem === mainImageA)
+            const loaderIsHidden = (loaderIsA && !useImageA) || (!loaderIsA && useImageA)
+
+            if (!loaderIsHidden) {
+                return
+            }
+
+            const newSource = imageItem.source
+            lastImagePath = newSource
+
+            print("Image loaded:", newSource)
+
+            // HDR detection based on the final source
+            if (App.isImageHDR(newSource)) {
+                print("Detected as HDR - enabling PQ mode")
+                App.enablePQMode(hdrWindow)
+                currentHDRMode = true
+            } else {
+                print("Detected as SDR - disabling PQ mode")
+                App.disablePQMode(hdrWindow)
+                currentHDRMode = false
+            }
+
+            // Switch visible image after PQ mode has been set correctly
+            useImageA = loaderIsA
+
+            // Handle first load
+            if (isFirstLoad) {
+                isFirstLoad = false
+                showParentWindow()
+            }
+
+            imageReady()
+        } else if (imageItem.status === Image.Error) {
+            if (isFirstLoad) {
+                isFirstLoad = false
+                showParentWindow()
+            }
+            imageError()
+        }
+    }
     
     // Signals
     signal clicked()
@@ -274,63 +356,72 @@ Item {
                     
                     Item {
                         id: imageContainer
-                        width: Math.max(mainImage.paintedWidth * root.zoomFactor, imageFlickable.width)
-                        height: Math.max(mainImage.paintedHeight * root.zoomFactor, imageFlickable.height)
-                        
+                        width: Math.max(currentImage.paintedWidth * root.zoomFactor, imageFlickable.width)
+                        height: Math.max(currentImage.paintedHeight * root.zoomFactor, imageFlickable.height)
+
+                        // Image A
                         Image {
-                            id: mainImage
+                            id: mainImageA
                             anchors.centerIn: parent
                             width: imageFlickable.width
                             height: imageFlickable.height
                             fillMode: Image.PreserveAspectFit
                             smooth: root.smoothRendering
-                            mipmap: false
+                            mipmap: true
                             cache: false
-                            asynchronous: true
+                            asynchronous: false
+                            retainWhileLoading: false
                             autoTransform: true
-                            retainWhileLoading: true
                             
                             transform: Scale {
                                 xScale: root.zoomFactor
                                 yScale: root.zoomFactor
-                                origin.x: mainImage.width / 2
-                                origin.y: mainImage.height / 2
+                                origin.x: mainImageA.width / 2
+                                origin.y: mainImageA.height / 2
                             }
-                            
-                            onStatusChanged: {
-                                if (status === Image.Ready) {
-                                    root.lastImagePath = root.source
-                                    
-                                    print("Image loaded:", root.source)
+                            visible: root.useImageA
 
-                                    // Detect if image is HDR or SDR and adjust color mode automatically
-                                    if (App.isImageHDR(root.source)) {
-                                        print("Detected as HDR - enabling PQ mode")
-                                        App.enablePQMode(hdrWindow)
-                                        currentHDRMode = true
-                                    } else {
-                                        print("Detected as SDR - disabling PQ mode")
-                                        App.disablePQMode(hdrWindow)
-                                        currentHDRMode = false
+                            onStatusChanged: {
+                                if (mainImageA.status === Image.Ready) {
+                                    if (imageAChangePending) {
+                                        imageAChangePending = false
+                                        root.handleImageStatusChanged(mainImageA)
                                     }
-                                    
-                                    // Handle first load
-                                    if (root.isFirstLoad) {
-                                        root.isFirstLoad = false
-                                        root.showParentWindow()
-                                    }
-                                    
-                                    root.imageReady()
-                                } else if (status === Image.Error) {
-                                    // Handle first load even on error
-                                    if (root.isFirstLoad) {
-                                        root.isFirstLoad = false
-                                        root.showParentWindow()
-                                    }
-                                    
-                                    root.imageError()
                                 }
                             }
+
+                        }
+
+                        // Image B
+                        Image {
+                            id: mainImageB
+                            anchors.centerIn: parent
+                            width: imageFlickable.width
+                            height: imageFlickable.height
+                            fillMode: Image.PreserveAspectFit
+                            smooth: root.smoothRendering
+                            mipmap: true
+                            cache: false
+                            asynchronous: false
+                            retainWhileLoading: false
+                            autoTransform: true
+
+                            transform: Scale {
+                                xScale: root.zoomFactor
+                                yScale: root.zoomFactor
+                                origin.x: mainImageB.width / 2
+                                origin.y: mainImageB.height / 2
+                            }
+                            visible: !root.useImageA
+
+                            onStatusChanged: {
+                                if (mainImageB.status === Image.Ready) {
+                                    if (imageBChangePending) {
+                                        imageBChangePending = false
+                                        root.handleImageStatusChanged(mainImageB)
+                                    }
+                                }
+                            }                        
                         }
                     }
                 }
@@ -402,7 +493,7 @@ Item {
                     anchors.bottom: parent.bottom
                     anchors.rightMargin: 20
                     anchors.bottomMargin: 20
-                    visible: root.isLoading
+                    visible: imageAChangePending || imageBChangePending
                     running: visible
                 }
             }
