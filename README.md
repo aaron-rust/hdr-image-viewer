@@ -113,6 +113,12 @@ Launch the application with an image file:
 - **Double-click**: Toggle fullscreen mode
 - **Click + drag** (when not zoomed): Move window
 
+## Test images
+
+To test the image viewer with real-world image files, you can download my other repository, which contains high-quality HDR and SDR images in different formats, including the RAW files needed to create your own test files. Have fun!
+
+Link to the sample images repository: [hdr-sample-images](https://github.com/aaron-rust/hdr-sample-images)
+
 ## License
 
 MIT License - see [LICENSE.md](LICENSE.md)
