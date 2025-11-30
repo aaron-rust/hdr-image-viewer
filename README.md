@@ -1,10 +1,8 @@
-# HDR Image Viewer
-
-![GUI screenshot](resources/gui.png)
+# <img src="resources/app-icon.svg" alt="Application icon" width="50" style="vertical-align: middle; margin-right: 10px;" /> HDR Image Viewer 
 
 An image viewer for displaying High Dynamic Range (HDR) images on Linux systems.
 
-<img src="resources/app-icon.svg" alt="Application icon" width="50" />
+![GUI screenshot](resources/gui.png)
 
 ## Description
 
