@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QUrl>
 #include <QFileInfo>
+#include <QImageReader>
 #include <jxl/decode.h>
 #include <jxl/decode_cxx.h>
 #include <jxl/types.h>
@@ -135,7 +136,20 @@ static bool parseIsoMediaBoxesForHDR(QFile &file, qint64 maxEnd = -1) {
 bool FileDetector::isSupportedImageFormat(const QString &filePath)
 {
     ImageFormat format = detectImageFormat(filePath);
-    return format != ImageFormat::Unknown;
+    if (format != ImageFormat::Unknown) {
+        return true;
+    }
+
+    // Fallback: Ask Qt if it could decode the file. This enables support for additional file types,
+    // like RAW files, that the magic-byte based detector does not recognize explicitly.
+    QImageReader reader(filePath);
+    if (reader.canRead()) {
+        qDebug() << "Qt reports supported image format for" << filePath
+                 << "even though magic bytes are unknown";
+        return true;
+    }
+
+    return false;
 }
 
 bool FileDetector::isImageHDR(const QString &imagePath)
