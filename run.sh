@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./build/bin/hdr-image-viewer
+./build/bin/hdr-image-viewer "$@"

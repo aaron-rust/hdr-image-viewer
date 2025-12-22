@@ -46,6 +46,31 @@ namespace {
         // Optimize for large HDR images (8GB allocation limit)
         qputenv("QT_IMAGEIO_MAXALLOC", "8192");
 
+        // Prefer app-bundled Qt/KDE plugins (e.g. imageformats) over system plugins.
+        // This is the key mechanism to override the system kimg_raw.so (and its linked libraw)
+        // with a plugin shipped next to the application.
+        const QString appDir = QCoreApplication::applicationDirPath();
+        const QStringList candidatePluginRoots = {
+            appDir + QStringLiteral("/plugins"),
+            appDir + QStringLiteral("/qt/plugins"),
+            appDir + QStringLiteral("/qt6/plugins"),
+        };
+        QStringList newLibraryPaths;
+        for (const QString &pluginRoot : candidatePluginRoots) {
+            if (QDir(pluginRoot).exists()) {
+                newLibraryPaths.append(pluginRoot);
+            }
+        }
+        const QStringList existingLibraryPaths = QCoreApplication::libraryPaths();
+        for (const QString &existing : existingLibraryPaths) {
+            if (!newLibraryPaths.contains(existing)) {
+                newLibraryPaths.append(existing);
+            }
+        }
+        if (!newLibraryPaths.isEmpty()) {
+            QCoreApplication::setLibraryPaths(newLibraryPaths);
+        }
+
         // Use KDE desktop style unless overridden
         if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
             QQuickStyle::setStyle(u"org.kde.desktop"_s);
