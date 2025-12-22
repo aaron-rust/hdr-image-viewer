@@ -9,17 +9,13 @@ Item {
     // Externally set image source
     property url source: ""
     // Status / loading flags of the currently visible image
-    property int status: currentImage.status
-    property bool isLoading: currentImage.status === Image.Loading
+    property int status: mainImageA.status
+    property bool isLoading: mainImageA.status === Image.Loading
     property bool isHDRMode: currentHDRMode  // Expose current HDR mode state
 
     // State management
     property bool isFirstLoad: true
     property string lastImagePath: ""
-    property bool useImageA: true
-    property Image currentImage: useImageA ? mainImageA : mainImageB
-    property bool imageAChangePending: false
-    property bool imageBChangePending: false
 
     // React to changed external source and start loading
     onSourceChanged: {
@@ -28,73 +24,10 @@ Item {
         loadNewImage(source)
     }
 
-    // Double image logic: load new image into hidden image and then swap visibility
+    // Single image logic: retainWhileLoading keeps the previous frame visible
     function loadNewImage(newSource) {
-        // Loader is the currently NOT visible image
-        const loader = useImageA ? mainImageB : mainImageA
-
-        if(loader == mainImageA) {
-            print("Loading new image into Image A:", newSource)
-            imageAChangePending = true;
-            imageBChangePending = false;
-        } else {
-            print("Loading new image into Image B:", newSource)
-            imageBChangePending = true;
-            imageAChangePending = false;
-        }
-
-        // Abort previous loading
-        loader.source = ""
-
-        // Load new image (hidden)
-        loader.source = newSource
-    }
-
-    // Shared status handling for both image instances
-    function handleImageStatusChanged(imageItem) {
-
-        if (imageItem.status === Image.Ready) {
-            // Only react if this is the hidden loader image
-            const loaderIsA = (imageItem === mainImageA)
-            const loaderIsHidden = (loaderIsA && !useImageA) || (!loaderIsA && useImageA)
-
-            if (!loaderIsHidden) {
-                return
-            }
-
-            const newSource = imageItem.source
-            lastImagePath = newSource
-
-            print("Image loaded:", newSource)
-
-            // HDR detection based on the final source
-            if (App.isImageHDR(newSource)) {
-                print("Detected as HDR - enabling PQ mode")
-                App.enablePQMode(hdrWindow)
-                currentHDRMode = true
-            } else {
-                print("Detected as SDR - disabling PQ mode")
-                App.disablePQMode(hdrWindow)
-                currentHDRMode = false
-            }
-
-            // Switch visible image after PQ mode has been set correctly
-            useImageA = loaderIsA
-
-            // Handle first load
-            if (isFirstLoad) {
-                isFirstLoad = false
-                showParentWindow()
-            }
-
-            imageReady()
-        } else if (imageItem.status === Image.Error) {
-            if (isFirstLoad) {
-                isFirstLoad = false
-                showParentWindow()
-            }
-            imageError()
-        }
+        print("Loading new image:", newSource)
+        mainImageA.source = newSource
     }
     
     // Signals
@@ -356,8 +289,8 @@ Item {
                     
                     Item {
                         id: imageContainer
-                        width: Math.max(currentImage.paintedWidth * root.zoomFactor, imageFlickable.width)
-                        height: Math.max(currentImage.paintedHeight * root.zoomFactor, imageFlickable.height)
+                        width: Math.max(mainImageA.paintedWidth * root.zoomFactor, imageFlickable.width)
+                        height: Math.max(mainImageA.paintedHeight * root.zoomFactor, imageFlickable.height)
 
                         // Image A
                         Image {
@@ -370,7 +303,7 @@ Item {
                             mipmap: true
                             cache: false
                             asynchronous: false
-                            retainWhileLoading: false
+                            retainWhileLoading: true
                             autoTransform: true
                             
                             transform: Scale {
@@ -379,65 +312,109 @@ Item {
                                 origin.x: mainImageA.width / 2
                                 origin.y: mainImageA.height / 2
                             }
-                            visible: root.useImageA
-
                             onStatusChanged: {
                                 if (mainImageA.status === Image.Ready) {
-                                    if (imageAChangePending) {
-                                        imageAChangePending = false
-                                        root.handleImageStatusChanged(mainImageA)
+                                    const newSource = mainImageA.source
+                                    root.lastImagePath = newSource
+
+                                    print("Image loaded:", newSource)
+
+                                    if (App.isImageHDR(newSource)) {
+                                        print("Detected as HDR - enabling PQ mode")
+                                        App.enablePQMode(hdrWindow)
+                                        root.currentHDRMode = true
+                                    } else {
+                                        print("Detected as SDR - disabling PQ mode")
+                                        App.disablePQMode(hdrWindow)
+                                        root.currentHDRMode = false
                                     }
+
+                                    if (root.isFirstLoad) {
+                                        root.isFirstLoad = false
+                                        root.showParentWindow()
+                                    }
+
+                                    root.imageReady()
+                                } else if (mainImageA.status === Image.Error) {
+                                    if (root.isFirstLoad) {
+                                        root.isFirstLoad = false
+                                        root.showParentWindow()
+                                    }
+                                    root.imageError()
                                 }
                             }
 
-                        }
-
-                        // Image B
-                        Image {
-                            id: mainImageB
-                            anchors.centerIn: parent
-                            width: imageFlickable.width
-                            height: imageFlickable.height
-                            fillMode: Image.PreserveAspectFit
-                            smooth: root.smoothRendering
-                            mipmap: true
-                            cache: false
-                            asynchronous: false
-                            retainWhileLoading: false
-                            autoTransform: true
-
-                            transform: Scale {
-                                xScale: root.zoomFactor
-                                yScale: root.zoomFactor
-                                origin.x: mainImageB.width / 2
-                                origin.y: mainImageB.height / 2
-                            }
-                            visible: !root.useImageA
-
-                            onStatusChanged: {
-                                if (mainImageB.status === Image.Ready) {
-                                    if (imageBChangePending) {
-                                        imageBChangePending = false
-                                        root.handleImageStatusChanged(mainImageB)
-                                    }
-                                }
-                            }                        
                         }
                     }
                 }
                 
                 // Mouse interaction handling
                 MouseArea {
+                    id: imageMouseArea
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    hoverEnabled: true
+
+                    property bool cursorHidden: false
+
+                    function showCursorAndArmHideTimer() {
+                        if (cursorHidden) {
+                            cursorHidden = false
+                            if (App && App["setCursorHidden"]) App["setCursorHidden"](hdrWindow, false)
+                        }
+                        if (containsMouse) {
+                            cursorHideTimer.restart()
+                        } else {
+                            cursorHideTimer.stop()
+                        }
+                    }
+
+                    Timer {
+                        id: cursorHideTimer
+                        interval: 3000
+                        repeat: false
+                        onTriggered: {
+                            if (imageMouseArea.containsMouse && !imageMouseArea.isDragging) {
+                                if (!imageMouseArea.cursorHidden) {
+                                    imageMouseArea.cursorHidden = true
+                                    if (App && App["setCursorHidden"]) App["setCursorHidden"](hdrWindow, true)
+                                }
+                            }
+                        }
+                    }
                     
                     property bool isDragging: false
                     property real dragStartX: 0
                     property real dragStartY: 0
                     property real contentStartX: 0
                     property real contentStartY: 0
+
+                    onEntered: {
+                        showCursorAndArmHideTimer()
+                    }
+
+                    onExited: {
+                        cursorHideTimer.stop()
+                        if (cursorHidden) {
+                            cursorHidden = false
+                            if (App && App["setCursorHidden"]) App["setCursorHidden"](hdrWindow, false)
+                        }
+                    }
+
+                    onContainsMouseChanged: {
+                        if (containsMouse) {
+                            showCursorAndArmHideTimer()
+                        } else {
+                            cursorHideTimer.stop()
+                            if (cursorHidden) {
+                                cursorHidden = false
+                                if (App && App["setCursorHidden"]) App["setCursorHidden"](hdrWindow, false)
+                            }
+                        }
+                    }
                     
                     onPressed: (mouse) => {
+                        showCursorAndArmHideTimer()
                         if (mouse.button === Qt.LeftButton) {
                             if (root.zoomFactor > 1.0) {
                                 isDragging = true
@@ -452,6 +429,7 @@ Item {
                     }
                     
                     onPositionChanged: (mouse) => {
+                        showCursorAndArmHideTimer()
                         if (isDragging && root.zoomFactor > 1.0) {
                             const deltaX = mouse.x - dragStartX
                             const deltaY = mouse.y - dragStartY
@@ -467,6 +445,7 @@ Item {
                     
                     onReleased: () => {
                         isDragging = false
+                        showCursorAndArmHideTimer()
                     }
                     
                     onClicked: {
@@ -475,6 +454,7 @@ Item {
                     onDoubleClicked: root.doubleClicked()
                     
                     onWheel: (wheel) => {
+                        showCursorAndArmHideTimer()
                         const angleDelta = wheel.angleDelta.y
                         // Normalize wheel input to step size factor
                         // Normal mice: ±120 per step → stepSizeFactor = ±1.0
@@ -493,7 +473,7 @@ Item {
                     anchors.bottom: parent.bottom
                     anchors.rightMargin: 20
                     anchors.bottomMargin: 20
-                    visible: imageAChangePending || imageBChangePending
+                    visible: root.isLoading
                     running: visible
                 }
             }

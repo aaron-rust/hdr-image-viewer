@@ -2,6 +2,7 @@
 #include "file_detector.h"
 
 #include <QDir>
+#include <QCursor>
 #include <QEvent>
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -285,6 +286,22 @@ void App::setColorProfile(QQuickWindow *window, int profileId)
 bool App::isImageHDR(const QString &imagePath)
 {
     return FileDetector::isImageHDR(imagePath);
+}
+
+void App::setCursorHidden(QQuickWindow *window, bool hidden)
+{
+    if (!window) {
+        return;
+    }
+
+    const auto it = m_cursorHidden.find(window);
+    const bool wasHidden = (it != m_cursorHidden.end()) ? it->second : false;
+    if (wasHidden == hidden) {
+        return;
+    }
+
+    window->setCursor(QCursor(hidden ? Qt::BlankCursor : Qt::ArrowCursor));
+    m_cursorHidden[window] = hidden;
 }
 
 void App::initializeImageList(const QString &imagePath)

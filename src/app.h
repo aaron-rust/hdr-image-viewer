@@ -93,6 +93,9 @@ public:
     Q_INVOKABLE void disablePQMode(QQuickWindow *window);
     Q_INVOKABLE void setColorProfile(QQuickWindow *window, int profileId);
     Q_INVOKABLE bool isImageHDR(const QString &imagePath);
+
+    // Cursor management
+    Q_INVOKABLE void setCursorHidden(QQuickWindow *window, bool hidden);
     
     // Image navigation
     Q_INVOKABLE void initializeImageList(const QString &imagePath);
@@ -113,4 +116,6 @@ private:
     std::unique_ptr<ImageNavigator> m_imageNavigator;
     std::unique_ptr<ColorController> m_colorController;
     QQuickWindow *m_mainWindow = nullptr;
+
+    std::unordered_map<QQuickWindow*, bool> m_cursorHidden;
 };
