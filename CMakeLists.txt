@@ -214,6 +214,7 @@ target_link_libraries(hdr_image_viewer_static PUBLIC
     Qt6::Svg
     Qt6::Widgets
     KF6::I18n
+    KF6::I18nQml
     KF6::CoreAddons
     Qt6::WaylandClient
     PkgConfig::LIBJXL
