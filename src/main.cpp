@@ -15,7 +15,7 @@
 #include "file_detector.h"
 #include "version-hdr-image-viewer.h"
 #include <KAboutData>
-#include <KLocalizedContext>
+#include <KLocalizedQmlContext>
 #include <KLocalizedString>
 
 using namespace Qt::Literals::StringLiterals;
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
     // Setup QML engine
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
+    KLocalization::setupLocalizedContext(&engine);
     engine.rootContext()->setContextProperty(u"imagePath"_s, imagePath);
 
     engine.loadFromModule("de.aaronrust.hdrimageviewer", u"Main");
