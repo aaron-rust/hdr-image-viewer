@@ -4,7 +4,146 @@ import de.aaronrust.hdrimageviewer
 
 Item {
     id: root
-    
+
+    // Make KeyHandler a reusable component
+    component KeyHandler: Item {
+        anchors.fill: parent
+        focus: true
+
+        function handleKeyPressEvent(event) {
+        switch (event.key) {
+            case Qt.Key_Q:
+                if (event.modifiers & Qt.ControlModifier) {
+                    Qt.quit()
+                    event.accepted = true
+                } else {
+                    root.qPressed = true
+                    event.accepted = true
+                }
+                break
+                
+            case Qt.Key_F:
+            case Qt.Key_F11:
+                root.toggleFullscreen()
+                event.accepted = true
+                break
+                
+            case Qt.Key_Escape:
+                root.exitFullscreen()
+                event.accepted = true
+                break
+                
+            case Qt.Key_Right:
+            case Qt.Key_PageDown:
+            case Qt.Key_Space:
+                App.navigateToNext()
+                event.accepted = true
+                break
+                
+            case Qt.Key_Left:
+            case Qt.Key_PageUp:
+            case Qt.Key_Backspace:
+            case Qt.Key_Shift:
+                App.navigateToPrevious()
+                event.accepted = true
+                break
+
+            case Qt.Key_Q:
+            case Qt.Key_Minus:
+                root.qPressed = true
+                event.accepted = true
+                break
+                
+            case Qt.Key_E:
+            case Qt.Key_Plus:
+                root.ePressed = true
+                event.accepted = true
+                break
+                
+            case Qt.Key_0:
+            case Qt.Key_Home:
+                root.resetZoom()
+                event.accepted = true
+                break
+                
+            case Qt.Key_W:
+                root.wPressed = true
+                event.accepted = true
+                break
+                
+            case Qt.Key_S:
+                root.sPressed = true
+                event.accepted = true
+                break
+                
+            case Qt.Key_A:
+                root.aPressed = true
+                event.accepted = true
+                break
+                
+            case Qt.Key_D:
+                root.dPressed = true
+                event.accepted = true
+                break
+                
+            case Qt.Key_H:
+                root.toggleHDRMode()
+                event.accepted = true
+                break
+                
+            case Qt.Key_P:
+                root.smoothRendering = !root.smoothRendering
+                event.accepted = true
+                break
+                
+            default:
+                event.accepted = false
+            }
+        }
+
+        function handleKeyReleaseEvent(event) {
+        switch (event.key) {
+            case Qt.Key_Q:
+            case Qt.Key_Minus:
+                root.qPressed = false
+                event.accepted = true
+                break
+                
+            case Qt.Key_E:
+            case Qt.Key_Plus:
+                root.ePressed = false
+                event.accepted = true
+                break
+                
+            case Qt.Key_W:
+                root.wPressed = false
+                event.accepted = true
+                break
+                
+            case Qt.Key_S:
+                root.sPressed = false
+                event.accepted = true
+                break
+                
+            case Qt.Key_A:
+                root.aPressed = false
+                event.accepted = true
+                break
+                
+            case Qt.Key_D:
+                root.dPressed = false
+                event.accepted = true
+                break
+                
+            default:
+                event.accepted = false
+            }
+        }
+
+        Keys.onPressed: (event) => handleKeyPressEvent(event)
+        Keys.onReleased: (event) => handleKeyReleaseEvent(event)
+    }
+
     // Public properties
     // Externally set image source
     property url source: ""
@@ -272,7 +411,14 @@ Item {
         
         window: Window {
             id: hdrWindow
-            
+
+            // receives keys after unfocus/refocus cycle
+            KeyHandler { id: hdrKeyHandler }
+
+            onActiveChanged: {
+                if (active) hdrKeyHandler.forceActiveFocus()
+            }
+
             // Main container
             Rectangle {
                 anchors.fill: parent
@@ -480,144 +626,8 @@ Item {
         }
     }
 
-    // Keyboard Handler Item
-    Item {
-        id: keyHandler
-        anchors.fill: parent
-        focus: true
-        
-        Keys.onPressed: (event) => {
-
-            switch (event.key) {
-            case Qt.Key_Q:
-                if (event.modifiers & Qt.ControlModifier) {
-                    Qt.quit()
-                    event.accepted = true
-                } else {
-                    root.qPressed = true
-                    event.accepted = true
-                }
-                break
-                
-            case Qt.Key_F:
-            case Qt.Key_F11:
-                root.toggleFullscreen()
-                event.accepted = true
-                break
-                
-            case Qt.Key_Escape:
-                root.exitFullscreen()
-                event.accepted = true
-                break
-                
-            case Qt.Key_Right:
-            case Qt.Key_PageDown:
-            case Qt.Key_Space:
-                App.navigateToNext()
-                event.accepted = true
-                break
-                
-            case Qt.Key_Left:
-            case Qt.Key_PageUp:
-            case Qt.Key_Backspace:
-            case Qt.Key_Shift:
-                App.navigateToPrevious()
-                event.accepted = true
-                break
-
-            case Qt.Key_Q:
-            case Qt.Key_Minus:
-                root.qPressed = true
-                event.accepted = true
-                break
-                
-            case Qt.Key_E:
-            case Qt.Key_Plus:
-                root.ePressed = true
-                event.accepted = true
-                break
-                
-            case Qt.Key_0:
-            case Qt.Key_Home:
-                root.resetZoom()
-                event.accepted = true
-                break
-                
-            case Qt.Key_W:
-                root.wPressed = true
-                event.accepted = true
-                break
-                
-            case Qt.Key_S:
-                root.sPressed = true
-                event.accepted = true
-                break
-                
-            case Qt.Key_A:
-                root.aPressed = true
-                event.accepted = true
-                break
-                
-            case Qt.Key_D:
-                root.dPressed = true
-                event.accepted = true
-                break
-                
-            case Qt.Key_H:
-                root.toggleHDRMode()
-                event.accepted = true
-                break
-                
-            case Qt.Key_P:
-                root.smoothRendering = !root.smoothRendering
-                event.accepted = true
-                break
-                
-            default:
-                event.accepted = false
-            }
-        }
-        
-        Keys.onReleased: (event) => {
-            
-            switch (event.key) {
-            case Qt.Key_Q:
-            case Qt.Key_Minus:
-                root.qPressed = false
-                event.accepted = true
-                break
-                
-            case Qt.Key_E:
-            case Qt.Key_Plus:
-                root.ePressed = false
-                event.accepted = true
-                break
-                
-            case Qt.Key_W:
-                root.wPressed = false
-                event.accepted = true
-                break
-                
-            case Qt.Key_S:
-                root.sPressed = false
-                event.accepted = true
-                break
-                
-            case Qt.Key_A:
-                root.aPressed = false
-                event.accepted = true
-                break
-                
-            case Qt.Key_D:
-                root.dPressed = false
-                event.accepted = true
-                break
-                
-            default:
-                event.accepted = false
-            }
-        }
-    }
+    // handles startup when mainWindow is the active xdg-toplevel
+    KeyHandler { id: keyHandler }
 
     Component.onCompleted: {
         // Initialize image navigation if source is provided
