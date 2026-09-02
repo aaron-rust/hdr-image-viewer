@@ -57,7 +57,7 @@ option(HDR_IMAGE_VIEWER_BUNDLE_KIMAGEFORMATS_RAW_PLUGIN "Build and bundle kimg_r
 # kimageformats 'master' can require newer ECM than available on stable distros.
 # Default to a release tag matching the detected ECM version to keep builds reproducible.
 if(NOT DEFINED HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG)
-    if(DEFINED ECM_VERSION AND ECM_VERSION VERSION_LESS "6.26.0")
+    if(DEFINED ECM_VERSION)
         set(_hdr_image_viewer_default_kimageformats_tag "v${ECM_VERSION}")
     else()
         set(_hdr_image_viewer_default_kimageformats_tag "master")
@@ -66,7 +66,7 @@ if(NOT DEFINED HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG)
 endif()
 
 # Migrate older build directories that cached 'master' before this compatibility logic.
-if(DEFINED ECM_VERSION AND ECM_VERSION VERSION_LESS "6.26.0" AND HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG STREQUAL "master")
+if(DEFINED ECM_VERSION AND HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG STREQUAL "master")
     set(HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG "v${ECM_VERSION}" CACHE STRING "kimageformats git ref (branch/tag/commit) to build" FORCE)
     message(STATUS "Adjusted HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG to ${HDR_IMAGE_VIEWER_KIMAGEFORMATS_GIT_TAG} for ECM ${ECM_VERSION}")
 endif()
