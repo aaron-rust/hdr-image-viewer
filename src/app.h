@@ -111,6 +111,9 @@ Q_SIGNALS:
     void currentImagePathChanged();
     void preferredDescriptionChanged();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     void connectSignals();
 

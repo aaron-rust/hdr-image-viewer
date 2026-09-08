@@ -15,6 +15,8 @@ Window {
 
     title: getWindowTitle(App.currentImagePath, imageViewer.isLoading, imageViewer.isHDRMode)
 
+    Component.onCompleted: App.setupMainWindow(mainWindow)
+
     function toggleFullscreen() {
         if (visibility === Window.FullScreen)
             exitFullscreen()
