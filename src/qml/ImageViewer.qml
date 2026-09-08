@@ -187,34 +187,18 @@ Item {
     }
     
     // Fullscreen functions
+    // Fullscreen handling is centralized in the parent window (Main.qml).
+    // These just delegate forward so there is a single implementation.
     function toggleFullscreen() {
-        if (parentWindow) {
-            if (parentWindow.visibility === Window.FullScreen) {
-                exitFullscreen()
-            } else {
-                enterFullscreen()
-            }
-        }
+        if (parentWindow) parentWindow.toggleFullscreen()
     }
     
     function enterFullscreen() {
-        if (parentWindow) {
-            // Remember current state before going fullscreen
-            parentWindow.wasMaximized = (parentWindow.visibility === Window.Maximized)
-            parentWindow.showFullScreen()
-        }
+        if (parentWindow) parentWindow.enterFullscreen()
     }
     
     function exitFullscreen() {
-        if (parentWindow && parentWindow.visibility === Window.FullScreen) {
-            if (parentWindow.wasMaximized) {
-                parentWindow.showMaximized()
-                // Workaround: Second call needed for proper maximized state
-                parentWindow.showMaximized()
-            } else {
-                parentWindow.showNormal()
-            }
-        }
+        if (parentWindow) parentWindow.exitFullscreen()
     }
 
     // Keyboard handling properties

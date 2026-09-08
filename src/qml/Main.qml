@@ -2,94 +2,66 @@ import QtQuick
 import de.aaronrust.hdrimageviewer
 
 Window {
-    
+
     id: mainWindow
-    
-    // Initial state
-    visible: false // Will be shown by ImageViewer when first image loads
+
+    visible: false
     width: 1500
     height: 1000
     color: "black"
-    
-    // Window management properties
-    property bool wasMaximized: false
-    
-    // Window title with loading state
+
+    property int preFsWidth: 0
+    property int preFsHeight: 0
+
     title: getWindowTitle(App.currentImagePath, imageViewer.isLoading, imageViewer.isHDRMode)
-    
-    // Window management functions
+
     function toggleFullscreen() {
-        if (visibility === Window.FullScreen) {
+        if (visibility === Window.FullScreen)
             exitFullscreen()
-        } else {
+        else
             enterFullscreen()
-        }
     }
-    
+
     function enterFullscreen() {
-        // Remember current state before going fullscreen
-        wasMaximized = (visibility === Window.Maximized)
+        preFsWidth = width
+        preFsHeight = height
         showFullScreen()
     }
-    
+
     function exitFullscreen() {
-        if (visibility === Window.FullScreen) {
-            if (wasMaximized) {
-                showMaximized()
-                // Workaround: Second call needed for proper maximized state
-                showMaximized()
-            } else {
-                showNormal()
-            }
-        }
+        if (visibility !== Window.FullScreen)
+            return
+        App.exitFullscreen(mainWindow, preFsWidth, preFsHeight)
     }
-    
+
     function moveWindow() {
-        // Only allow moving when not in fullscreen
-        if (visibility !== Window.FullScreen) {
+        if (visibility !== Window.FullScreen)
             startSystemMove()
-        }
     }
-    
-    function isFullscreen() {
-        return visibility === Window.FullScreen
-    }
-    
+
     function getWindowTitle(imagePath, isLoading, isHDR) {
-        if (!imagePath) {
+        if (!imagePath)
             return i18n("HDR Image Viewer")
-        }
-        
+
         let path = imagePath.toString()
-        
-        // Remove file:// prefix if present
-        if (path.startsWith("file://")) {
+        if (path.startsWith("file://"))
             path = path.substring(7)
-        }
-        
+
         const fileName = path.split('/').pop()
         const loadingText = isLoading ? " " + i18n("(loading...)") : ""
         const modeText = isHDR ? "HDR" : "SDR"
-        
+
         return fileName + loadingText + " – " + "color mode: " + modeText + " – " + i18n("HDR Image Viewer")
     }
-    
+
     ImageViewer {
         id: imageViewer
         height: parent.height
         width: parent.width
         parentWindow: mainWindow
-        
         source: App.currentImagePath || imagePath
-        
-        onStartWindowMove: {
-            mainWindow.moveWindow()
-        }
-        
-        onDoubleClicked: {
-            mainWindow.toggleFullscreen()
-        }
-        
-    }   
 
+        onStartWindowMove: mainWindow.moveWindow()
+        onDoubleClicked: mainWindow.toggleFullscreen()
+    }
 }

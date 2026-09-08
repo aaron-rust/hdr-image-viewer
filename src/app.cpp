@@ -9,6 +9,7 @@
 #include <QImageReader>
 #include <QMimeDatabase>
 #include <QPlatformSurfaceEvent>
+#include <QTimer>
 #include <QQuickWindow>
 #include <QScreen>
 #include <QStandardPaths>
@@ -264,6 +265,25 @@ void App::adjustWindowSizeToImage(QQuickWindow *window, const QString &imagePath
     // Apply new size
     window->setWidth(targetWidth);
     window->setHeight(targetHeight);
+}
+
+void App::exitFullscreen(QQuickWindow *window, int width, int height)
+{
+    if (!window)
+        return;
+
+    // Phase 1: clear only the fullscreen bit so xdg_toplevel.unset_fullscreen
+    // is committed on its own. Clearing maximized at the same time would put
+    // both unset requests in the same commit, which triggers a state-inversion
+    // bug on Hyprland.
+    window->setWindowStates(window->windowStates() & ~Qt::WindowFullScreen);
+
+    // Phase 2: on the next event-loop iteration (after the compositor has
+    // re-tiled and ACKed), send the size hint + unset_maximized together.
+    QTimer::singleShot(0, window, [window, width, height] {
+        window->resize(width, height);
+        window->setWindowStates(window->windowStates() & ~Qt::WindowMaximized);
+    });
 }
 
 void App::enablePQMode(QQuickWindow *window, int referenceLuminance)
