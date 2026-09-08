@@ -187,34 +187,18 @@ Item {
     }
     
     // Fullscreen functions
+    // Fullscreen handling is centralized in the parent window (Main.qml).
+    // These just delegate forward so there is a single implementation.
     function toggleFullscreen() {
-        if (parentWindow) {
-            if (parentWindow.visibility === Window.FullScreen) {
-                exitFullscreen()
-            } else {
-                enterFullscreen()
-            }
-        }
+        if (parentWindow) parentWindow.toggleFullscreen()
     }
     
     function enterFullscreen() {
-        if (parentWindow) {
-            // Remember current state before going fullscreen
-            parentWindow.wasMaximized = (parentWindow.visibility === Window.Maximized)
-            parentWindow.showFullScreen()
-        }
+        if (parentWindow) parentWindow.enterFullscreen()
     }
     
     function exitFullscreen() {
-        if (parentWindow && parentWindow.visibility === Window.FullScreen) {
-            if (parentWindow.wasMaximized) {
-                parentWindow.showMaximized()
-                // Workaround: Second call needed for proper maximized state
-                parentWindow.showMaximized()
-            } else {
-                parentWindow.showNormal()
-            }
-        }
+        if (parentWindow) parentWindow.exitFullscreen()
     }
 
     // Keyboard handling properties
@@ -562,20 +546,23 @@ Item {
                     onPressed: (mouse) => {
                         showCursorAndArmHideTimer()
                         if (mouse.button === Qt.LeftButton) {
+                            isDragging = true
+                            dragStartX = mouse.x
+                            dragStartY = mouse.y
                             if (root.zoomFactor > 1.0) {
-                                isDragging = true
-                                dragStartX = mouse.x
-                                dragStartY = mouse.y
                                 contentStartX = imageFlickable.contentX
                                 contentStartY = imageFlickable.contentY
-                            } else {
-                                root.startWindowMove()
                             }
                         }
                     }
                     
                     onPositionChanged: (mouse) => {
                         showCursorAndArmHideTimer()
+                        if (isDragging && root.zoomFactor <= 1.0
+                                && Math.abs(mouse.x - dragStartX) + Math.abs(mouse.y - dragStartY) > 4) {
+                            isDragging = false
+                            root.startWindowMove()
+                        }
                         if (isDragging && root.zoomFactor > 1.0) {
                             const deltaX = mouse.x - dragStartX
                             const deltaY = mouse.y - dragStartY

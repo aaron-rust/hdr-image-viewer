@@ -87,6 +87,7 @@ public:
     // Window management
     Q_INVOKABLE void setupMainWindow(QQuickWindow *window);
     Q_INVOKABLE void adjustWindowSizeToImage(QQuickWindow *window, const QString &imagePath);
+    Q_INVOKABLE void exitFullscreen(QQuickWindow *window, int width, int height);
     
     // Color management
     Q_INVOKABLE void enablePQMode(QQuickWindow *window, int referenceLuminance = 203);
@@ -109,6 +110,9 @@ public:
 Q_SIGNALS:
     void currentImagePathChanged();
     void preferredDescriptionChanged();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     void connectSignals();
