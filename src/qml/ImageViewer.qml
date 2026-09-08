@@ -562,20 +562,23 @@ Item {
                     onPressed: (mouse) => {
                         showCursorAndArmHideTimer()
                         if (mouse.button === Qt.LeftButton) {
+                            isDragging = true
+                            dragStartX = mouse.x
+                            dragStartY = mouse.y
                             if (root.zoomFactor > 1.0) {
-                                isDragging = true
-                                dragStartX = mouse.x
-                                dragStartY = mouse.y
                                 contentStartX = imageFlickable.contentX
                                 contentStartY = imageFlickable.contentY
-                            } else {
-                                root.startWindowMove()
                             }
                         }
                     }
                     
                     onPositionChanged: (mouse) => {
                         showCursorAndArmHideTimer()
+                        if (isDragging && root.zoomFactor <= 1.0
+                                && Math.abs(mouse.x - dragStartX) + Math.abs(mouse.y - dragStartY) > 4) {
+                            isDragging = false
+                            root.startWindowMove()
+                        }
                         if (isDragging && root.zoomFactor > 1.0) {
                             const deltaX = mouse.x - dragStartX
                             const deltaY = mouse.y - dragStartY
